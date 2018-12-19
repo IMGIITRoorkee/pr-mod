@@ -3,6 +3,7 @@ class Config(object):
     # set to environment variable
     GITHUB_CLIENT_ID = 'a423dd70490484392542'
     GITHUB_CLIENT_SECRET = 'ace15039e4ee39d7c7db50c11435545677ef5777'
+    SECRET_KEY = 'can_you_guess_it_?'
 
     # For GitHub Enterprise
     GITHUB_BASE_URL = 'https://api.github.com/'
@@ -10,4 +11,4 @@ class Config(object):
 
     # OAuth Scope/Permissions
     # more info on scopes https://developer.github.com/v3/oauth/#scopes
-    scope = "user repo"
+    scope = "user,repo"
