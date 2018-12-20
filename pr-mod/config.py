@@ -3,6 +3,7 @@ class Config(object):
     # set to environment variable
     GITHUB_CLIENT_ID = 'a423dd70490484392542'
     GITHUB_CLIENT_SECRET = 'ace15039e4ee39d7c7db50c11435545677ef5777'
+    GITHUB_USER = "Dragneel7"
     SECRET_KEY = 'can_you_guess_it_?'
 
     # For GitHub Enterprise
