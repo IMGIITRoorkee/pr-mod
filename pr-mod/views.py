@@ -30,7 +30,7 @@ def index(owner, repo, pr_no):
 
 
 @app.route('/git_pull/<oauth_token>/<user>/<owner>/<repo>/<branch>')
-def git_pull_repo(oauth_token, user, repo, branch):
+def git_pull_repo(oauth_token, user, owner, repo, branch):
     """ Pulls a repo from github and changes the branch.
     :param token: Authorization token for user.
     :type token: String
@@ -42,7 +42,7 @@ def git_pull_repo(oauth_token, user, repo, branch):
     :type repo: String
     :param branch: Branch of the PR owner.
     :type branch: String
-    :returns: Redirects to 
+    :returns: Redirects to deploy_dind.
     """
     repo_name = repo  # name of the cloned repository on server
     try:
@@ -61,14 +61,15 @@ def git_pull_repo(oauth_token, user, repo, branch):
             remote_url
             )
         cloned_repo = Repo.clone_from(https_remote_url, repo_name)
-    # change branch in the cloned repository
+    # change branch in the cloreponed repository
     os.chdir(repo)  # changes dir to the cloned repo
     os.system('git checkout {}'.format(branch))
     os.chdir('../')  # change back to the pwd
     return redirect(
         url_for(
             'deploy_dind',
-            branch=branch)
+            oauth_token=oauth_token,
+            repo=repo)
         )
 
 
@@ -121,12 +122,32 @@ def authorization_callback(oauth_token):
         )
 
 
-@app.route('/deploy-dind')
-def deploy_dind():
+@app.route('/deploy-dind/<oauth_token>/<repo>')
+def deploy_dind(oauth_token, repo):
     """ Deploys an isolated `Docker-In-Docker` environment and
     mounts the pulled repository to the container.
+    :param oauth_token: Authorization token for Owner.
+    :type oauth_token: String
+    :param repo: Name of the github repository.
+    :type repo: String
     """
     client = docker.from_env()
+    volume = '/{}'.format(repo)
+    vol_host = os.getcwd() + volume
+    client.containers.run(
+        'docker:dind',
+        name="exodus",
+        environment=["ACCESS_TOKEN={}".format(oauth_token)],
+        volumes={
+            vol_host: {
+                'bind': volume,
+                'mode': 'rw'
+            }
+        },
+        working_dir='/',
+        privileged=True,
+        detach=True)
+    # to ssh into container use `docker exec -ti exodus /bin/sh`
     return "hello world"
 
 
