@@ -14,4 +14,5 @@ class Config(object):
     # more info on scopes https://developer.github.com/v3/oauth/#scopes
     scope = "user,repo"
 
-    # docker-config variables (Should be removed after test-file)
+    #Base Port for `docker:dind`
+    PORT = 8000

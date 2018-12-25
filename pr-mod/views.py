@@ -7,6 +7,8 @@ from flask import redirect, url_for, session, request
 from git import Repo
 from app import app, github
 from config import Config
+from parser import parse
+from helpers import id_generator
 
 
 @app.route('/<owner>/<repo>/pull/<pr_no>')
@@ -131,25 +133,64 @@ def deploy_dind(oauth_token, repo):
     :param repo: Name of the github repository.
     :type repo: String
     """
+    # to ssh into container use `docker exec -ti exodus /bin/sh`
+    test_file_params = parse(repo)
     client = docker.from_env()
-    volume = '/{}'.format(repo)
-    vol_host = os.getcwd() + volume
-    client.containers.run(
+    try:
+        volume = test_file_params['VOL']
+    except KeyError:
+        volume = '/{}'.format(repo)
+    try:
+        cwd = test_file_params['CWD']
+    except KeyError:
+        cwd = '/'
+    #ToDo: Generate port mapping
+    vol_host = os.getcwd() + "/{}".format(repo)
+    name = "exdous-{}".format(id_generator())
+    dind_env = client.containers.run(
         'docker:dind',
-        name="exodus",
+        name=name,
         environment=["ACCESS_TOKEN={}".format(oauth_token)],
+        ports={'8088/tcp': 8000},
         volumes={
             vol_host: {
                 'bind': volume,
                 'mode': 'rw'
             }
         },
-        working_dir='/',
+        working_dir=cwd,
         privileged=True,
         detach=True)
-    # to ssh into container use `docker exec -ti exodus /bin/sh`
-    return "hello world"
+    execute_testfile(oauth_token, dind_env, test_file_params)
+    return "Please test the app now"
 
+
+def execute_testfile(oauth_token, container, test_file_params):
+    """ Setups environment inside `docker:dind` container.
+    :param oauth_token: Authorization token for the user.
+    :type oauth_token: String
+    :param container: docker container for app-environment.
+    :type container: Docker object
+    :param test_file_params: Parsed Testfile cmd.
+    :type test_file_params: UnorderDict Obj
+    """
+    # install git in `docker:dind`
+    container.exec_run("apk update")
+    container.exec_run("apk add git")
+    # execute Testfile cmds in `docker:dind`
+    for cmd in test_file_params:
+        if cmd == 'CMD':
+            # execute git cmd
+            container.exec_run(
+                test_file_params[cmd],
+                environment={
+                    'Username': Config.GITHUB_USER,
+                    'Password': oauth_token
+                })
+        elif cmd == 'DOCKER':
+            # execute docker commands
+            container.exec_run(test_file_params[cmd])
+    
 
 if __name__ == '__main__':
     app.secret_key = Config.SECRET_KEY
