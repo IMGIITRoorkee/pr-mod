@@ -1,0 +1,25 @@
+# DEMO TESTFILE TO TEST PR-MOD
+
+# Port with which `docker:dind` interacts with app
+PORTS 8088/tcp
+
+# Volume mount path inside `docker:dind`
+VOL /cms2.0
+
+# Working directory to ssh inside `docker:dind`
+CWD /docker-cms2.0
+
+# Clone docker-cms2.0 code from github
+CMD git clone https://github.com/IMGIITRoorkee/docker-cms2.0.git .
+
+# Copy cms2.0 into docker-cms2.0
+SHELL cp -r ../cms2.0 .
+
+# Build apache for cms2.0
+DOCKER docker build --file apache/Dockerfile --tag apache-cms2.0 .
+
+# Run docker-compose
+DOCKER docker-compose up -d
+
+# Build cms2.0
+DOCKER docker exec -it cms_php /bin/bash /scripts/build.sh
