@@ -21,9 +21,9 @@ Works with both private and public repositories.
 
 PR-Mod works with applications that support docker based deployment. It searches for a file named `Testfile` in the reposiotry.
 
-[What is Testfile ?](https://www.google.com)
+[What is Testfile ?](https://github.com/Dragneel7/pr-mod/wiki/What-is-a-Testfile-%3F)
 
-[How to write a testfile ?](https://www.google.com)
+[How to write a testfile ?](https://github.com/Dragneel7/pr-mod/wiki/How-to-write-a-Testfile)
 
 Based on the `Testfile` PR-Mod create an independent `docker:dind` image for each application where it is sandboxed from other applications running on the server.
 
