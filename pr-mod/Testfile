@@ -10,7 +10,7 @@ VOL /cms2.0
 CWD /docker-cms2.0
 
 # Clone docker-cms2.0 code from github
-CMD git clone https://github.com/IMGIITRoorkee/docker-cms2.0.git .
+GIT git clone https://github.com/IMGIITRoorkee/docker-cms2.0.git .
 
 # Copy cms2.0 into docker-cms2.0
 SHELL cp -r ../cms2.0 .

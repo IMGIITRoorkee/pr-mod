@@ -52,28 +52,13 @@ def get_remote_url(oauth_token, repo):
     )
 
 
-def execute_testfile(oauth_token, container, test_file_params):
+def execute_testfile(container, test_file_params):
     """ Setups environment inside `prmod\base-image` container.
-    :param oauth_token: Authorization token for the user.
-    :type oauth_token: String
     :param container: docker container for app-environment.
     :type container: Docker object
     :param test_file_params: Parsed Testfile cmd.
     :type test_file_params: UnorderDict Obj
     """
     # execute Testfile cmds in `prmod\base-image`
-    for cmd in test_file_params:
-        print(test_file_params[cmd])
-        if cmd == 'CMD':
-            # execute git cmd
-            git_cmd = test_file_params[cmd].replace("git clone https://", "")
-            git_cmd = "git clone https://{0}:x-oauth-basic@{1}".format(
-                oauth_token,
-                git_cmd)
-            container.exec_run(git_cmd)
-        elif cmd == 'SHELL':
-            # execute shell cmd
-            container.exec_run(test_file_params[cmd])
-        elif cmd == 'DOCKER':
-            # execute docker cmd
-            container.exec_run(test_file_params[cmd])
+    for cmd in test_file_params['CMD']:
+        container.exec_run(cmd, tty=True)

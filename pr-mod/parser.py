@@ -16,10 +16,12 @@ def find(name, path):
             return os.path.join(root, name)
 
 
-def parse(repo):
+def parse(repo, oauth_token):
     """ Parses and extracts cmd from `Testfile`.
     :param repo: Name of the cloned repository.
     :type repo: string
+    :param oauth_token: Authoprization token for the user.
+    :type oauth_token: string
     :return CMD: Dictonary of extracted commands.
     :rtype: JSON
     """
@@ -35,9 +37,18 @@ def parse(repo):
         lines for lines in file_lines if lines != '' and not lines.startswith(
             "#")]
     CMD = OrderedDict()
+    CMD['CMD'] = []  # to store executable cmd.
     for lines in filtered_file_lines:
         command_type, command = lines.split(" ", 1)
-        CMD[command_type] = command
+        if command_type in ['GIT', 'SHELL', 'DOCKER', 'PIP']:
+            if command_type == 'GIT':
+                command = command.replace("git clone https://", "")
+                command = "git clone https://{0}:x-oauth-basic@{1}".format(
+                    oauth_token,
+                    command)
+            CMD['CMD'].append(command)
+        else:
+            CMD[command_type] = command
     if 'PORTS' in CMD:
         CMD['PORTS'] = [x for x in CMD['PORTS'].split(" ")]
     return CMD

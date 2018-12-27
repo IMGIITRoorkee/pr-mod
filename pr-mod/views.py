@@ -116,7 +116,7 @@ def deploy_dind(oauth_token, repo):
     :type repo: String
     """
     # to ssh into container use `docker exec -ti exodus /bin/sh`
-    test_file_params = parse(repo)
+    test_file_params = parse(repo, oauth_token)
     client = docker.from_env()
     try:
         volume = test_file_params['VOL']
@@ -142,8 +142,14 @@ def deploy_dind(oauth_token, repo):
         working_dir=cwd,
         privileged=True,
         detach=True)
-    execute_testfile(oauth_token, dind_env, test_file_params)
+    execute_testfile(dind_env, test_file_params)
     return redirect("http://localhost:8000")
+
+
+# Implement logout function
+@app.route('/logout')
+def logout():
+    return "Logout"
 
 
 if __name__ == '__main__':
