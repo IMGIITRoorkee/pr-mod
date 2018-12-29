@@ -1,5 +1,7 @@
 import os
 import docker
+import constants
+
 
 from flask import redirect, url_for, session, request
 from git import Repo
@@ -9,7 +11,7 @@ from parser import parse
 from helpers import (
     id_generator,
     find_free_port,
-    get_remote_url,
+    get_pull_request_info,
     execute_testfile)
 
 
@@ -52,18 +54,19 @@ def git_pull_repo(oauth_token, user, owner, repo, branch):
     repo_name = "{0}-{1}".format(repo, id_generator())
     try:
         # Clone the forked repository
-        remote_url = "github.com/{0}/{1}.git".format(user, repo)
-        https_remote_url = 'https://{0}:x-oauth-basic@{1}'.format(
+        remote_url = constants.remote_url_string.format(user, repo)
+        https_remote_url = constants.https_url_string.format(
             oauth_token,
             remote_url)
-        cloned_repo = Repo.clone_from(https_remote_url, repo_name)
+        Repo.clone_from(https_remote_url, repo_name)
     except KeyError:
         # Fork doesnot exist, Clone from main repository
-        remote_url = "github.com/{0}/{1}.git".format(owner, repo)
-        https_remote_url = 'https://{0}:x-oauth-basic@{1}'.format(
+        remote_url = constants.remote_url_string.format(owner, repo)
+        https_remote_url = constants.https_url_string.format(
             oauth_token,
             remote_url)
-        cloned_repo = Repo.clone_from(https_remote_url, repo_name)
+        Repo.clone_from(https_remote_url, repo_name)
+  
     # change branch in the cloreponed repository
     os.chdir(repo_name)  # changes dir to the cloned repo
     os.system('git checkout {}'.format(branch))
@@ -94,7 +97,7 @@ def authorization_callback(oauth_token):
     if oauth_token is None:
         return "User Not Authenticated"
     repo = session.get('repo_url')
-    user, owner, repo, branch = get_remote_url(oauth_token, repo)
+    user, owner, repo, branch = get_pull_request_info(oauth_token, repo)
     return redirect(
         url_for(
             'git_pull_repo',

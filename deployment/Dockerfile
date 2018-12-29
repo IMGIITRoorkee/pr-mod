@@ -1,5 +1,5 @@
 # Using the base docker:dind image 
-from docker:dind
+FROM docker:dind
 
 # Install docker-compose
 RUN apk update

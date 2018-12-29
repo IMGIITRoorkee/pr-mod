@@ -3,7 +3,7 @@
 # Port with which `docker:dind` interacts with app
 PORTS 8088/tcp
 
-# Volume mount path inside `docker:dind`
+# Volume mount path inside `docker:dind` this will map with the source code
 VOL /cms2.0
 
 # Working directory to ssh inside `docker:dind`

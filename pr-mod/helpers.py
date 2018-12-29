@@ -26,12 +26,12 @@ def find_free_port():
     sock = socket.socket()
     sock.bind(('', 0))
     free_port = sock.getsockname()[1]
-    s.close()
+    sock.close()
     return free_port
 
 
-def get_remote_url(oauth_token, repo):
-    """ Gets remote details.
+def get_pull_request_info(oauth_token, repo):
+    """ Gets pull request details.
     :param oauth_token: Authorization token for Owner.
     :type oauth_token: String
     :param repo: Name of the Github repository.

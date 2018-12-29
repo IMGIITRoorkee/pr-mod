@@ -1,6 +1,6 @@
 class Config(object):
 
-    # set to environment variable
+    # To set to environment variable for Oauth
     GITHUB_CLIENT_ID = 'a423dd70490484392542'
     GITHUB_CLIENT_SECRET = 'ace15039e4ee39d7c7db50c11435545677ef5777'
     GITHUB_USER = "Dragneel7"
@@ -12,7 +12,4 @@ class Config(object):
 
     # OAuth Scope/Permissions
     # more info on scopes https://developer.github.com/v3/oauth/#scopes
-    scope = "user,repo"
-
-    # Base Port for `docker:dind`
-    PORT = 8000
+    scope = "user, repo"

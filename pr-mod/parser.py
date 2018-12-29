@@ -34,7 +34,8 @@ def parse(repo, oauth_token):
     content = test_file.read()
     file_lines = content.split("\n")
     filtered_file_lines = [
-        lines for lines in file_lines if lines != '' and not lines.startswith(
+        lines for lines in file_lines if lines != '' 
+            and not lines.startswith(
             "#")]
     CMD = OrderedDict()
     CMD['CMD'] = []  # to store executable cmd.
