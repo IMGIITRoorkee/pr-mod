@@ -32,6 +32,7 @@ def index(owner, repo, pr_no):
         owner,
         repo,
         pr_no)
+    print("logging: Authorizing github user")
     return redirect('/authorize')
 
 
@@ -50,6 +51,7 @@ def git_pull_repo(oauth_token, user, owner, repo, branch):
     :type branch: String
     :returns: Redirects to deploy_dind.
     """
+    print("logging: Pulling Repository from github")
     # name of the cloned repository on server
     repo_name = "{0}-{1}".format(repo, id_generator())
     try:
@@ -66,7 +68,7 @@ def git_pull_repo(oauth_token, user, owner, repo, branch):
             oauth_token,
             remote_url)
         Repo.clone_from(https_remote_url, repo_name)
-  
+    print("logging: Repo pull complete")
     # change branch in the cloreponed repository
     os.chdir(repo_name)  # changes dir to the cloned repo
     os.system('git checkout {}'.format(branch))
@@ -96,6 +98,7 @@ def authorization_callback(oauth_token):
     """
     if oauth_token is None:
         return "User Not Authenticated"
+    print("logging: User Authenticated")
     repo = session.get('repo_url')
     user, owner, repo, branch = get_pull_request_info(oauth_token, repo)
     return redirect(
@@ -119,7 +122,9 @@ def deploy_dind(oauth_token, repo):
     :type repo: String
     """
     # to ssh into container use `docker exec -ti exodus /bin/sh`
+    print("logging: Reading Testfile config")
     test_file_params = parse(repo, oauth_token)
+    print("logging: Testfile config read")
     client = docker.from_env()
     try:
         volume = test_file_params['VOL']
@@ -129,9 +134,12 @@ def deploy_dind(oauth_token, repo):
         cwd = test_file_params['CWD']
     except KeyError:
         cwd = '/'
-    # ToDo: Generate port mapping
+    print("logging: find free port for the application")
+    port = find_free_port(1)[0]
+    print("logging: will accept tcp request on port: {}".format(port))
     vol_host = os.getcwd() + "/{}".format(repo)
     name = "exdous-{}".format(id_generator())
+    print("logging: deploying prmod/base-image")
     dind_env = client.containers.run(
         'prmod/base-image',
         name=name,
@@ -145,8 +153,10 @@ def deploy_dind(oauth_token, repo):
         working_dir=cwd,
         privileged=True,
         detach=True)
+    print("logging: prmod/base-image deployed")
     execute_testfile(dind_env, test_file_params)
-    return redirect("http://localhost:8000")
+    print("logging: application deployed on server")
+    return redirect("http://localhost:{}".format(port))
 
 
 # Implement logout function
