@@ -36,11 +36,9 @@ def index(owner, repo, pr_no):
     return redirect('/authorize')
 
 
-@app.route('/git_pull/<oauth_token>/<user>/<owner>/<repo>/<branch>')
-def git_pull_repo(oauth_token, user, owner, repo, branch):
+@app.route('/git_pull/<user>/<owner>/<repo>/<branch>')
+def git_pull_repo(user, owner, repo, branch):
     """ Pulls a repo from github and changes the branch.
-    :param token: Authorization token for user.
-    :type token: String
     :param user: Authorized User.
     :type user: String
     :param owner: Repository Owner.
@@ -51,6 +49,7 @@ def git_pull_repo(oauth_token, user, owner, repo, branch):
     :type branch: String
     :returns: Redirects to deploy_dind.
     """
+    oauth_token = session.get('oauth_token')
     print("logging: Pulling Repository from github")
     # name of the cloned repository on server
     repo_name = "{0}-{1}".format(repo, id_generator())
@@ -77,7 +76,8 @@ def git_pull_repo(oauth_token, user, owner, repo, branch):
         url_for(
             'deploy_dind',
             oauth_token=oauth_token,
-            repo=repo_name)
+            repo=repo_name,
+            branch=branch)
         )
 
 
@@ -99,8 +99,12 @@ def authorization_callback(oauth_token):
     if oauth_token is None:
         return "User Not Authenticated"
     print("logging: User Authenticated")
+    session['oauth_token'] = oauth_token
     repo = session.get('repo_url')
     user, owner, repo, branch = get_pull_request_info(oauth_token, repo)
+    if (session.get('oauth_token') is True and
+        session.get('{0}-{1}'.format(repo, branch)) is True):
+            return redirect(session.get('{0}-{1}'.format(repo, branch)))
     return redirect(
         url_for(
             'git_pull_repo',
@@ -112,15 +116,18 @@ def authorization_callback(oauth_token):
         )
 
 
-@app.route('/deploy-dind/<oauth_token>/<repo>')
-def deploy_dind(oauth_token, repo):
+@app.route('/deploy-dind/<repo>/<branch>')
+def deploy_dind(repo, branch):
     """ Deploys an isolated `Docker-In-Docker` environment and
     mounts the pulled repository to the container.
     :param oauth_token: Authorization token for Owner.
     :type oauth_token: String
     :param repo: Name of the cloned github repository.
     :type repo: String
+    :param branch: Branch for the pull request.
+    :type branch: String
     """
+    oauth_token = session.get('oauth_token')
     # to ssh into container use `docker exec -ti exodus /bin/sh`
     print("logging: Reading Testfile config")
     test_file_params = parse(repo, oauth_token)
@@ -143,7 +150,7 @@ def deploy_dind(oauth_token, repo):
     dind_env = client.containers.run(
         'prmod/base-image',
         name=name,
-        ports={'8088/tcp': 8000},
+        ports={'8088/tcp': port},
         volumes={
             vol_host: {
                 'bind': volume,
@@ -156,7 +163,9 @@ def deploy_dind(oauth_token, repo):
     print("logging: prmod/base-image deployed")
     execute_testfile(dind_env, test_file_params)
     print("logging: application deployed on server")
-    return redirect("http://localhost:{}".format(port))
+    url = "http://localhost:{}".format(port)
+    session['{0}-{1}'.format(repo, branch)] = url
+    return redirect(url)
 
 
 # Implement logout function
