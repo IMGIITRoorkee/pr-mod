@@ -10,12 +10,9 @@ Saves you from the trouble of setting up the development environment on your com
 
 Works with both private and public repositories.
 
-<img src="./images/pr-mod-extension.png"
+<img src="./images/pr-mod-landing.png"
      style="float: left; margin-right: 10px; margin-bottom:10px;" />
 
-<img src="./images/pr-mod.png"
-     style="float: left; margin-right: 10px;
-     margin-bottom:10px;" />
 
 ## How PR-Mod works
 
