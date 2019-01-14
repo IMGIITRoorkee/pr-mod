@@ -27,15 +27,21 @@ def index(owner, repo, pr_no):
     :type pr_no: string
     :return redirect object.
     """
-    session['repo'] = repo
-    session['repo_url'] = "{0}repos/{1}/{2}/pulls/{3}".format(
-        Config.GITHUB_BASE_URL,
-        owner,
-        repo,
-        pr_no
-    )
-    print("logging: Authorizing github user")
-    return redirect('/authorize')
+
+    if Config.users["default"] == "deny" and owner not in Config.users["allow"]:
+        return "Permission denied"
+    elif Config.users["default"] == "allow" and owner in Config.users["deny"]:
+        return "Permission denied"
+    else:
+        session['repo'] = repo
+        session['repo_url'] = "{0}repos/{1}/{2}/pulls/{3}".format(
+            Config.GITHUB_BASE_URL,
+            owner,
+            repo,
+            pr_no
+        )
+        print("logging: Authorizing github user")
+        return redirect('/authorize')
 
 
 @app.route('/git_pull/<user>/<owner>/<repo>/<branch>')
