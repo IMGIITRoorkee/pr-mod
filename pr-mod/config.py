@@ -13,3 +13,12 @@ class Config(object):
     # OAuth Scope/Permissions
     # more info on scopes https://developer.github.com/v3/oauth/#scopes
     scope = "user, repo"
+
+    # Allow Deny rules for github users
+    # Default (for anonymous users) - allow or deny
+    # If deny, then we will check for allowed users
+    users = {
+        "default": "deny",
+        "allow": [],
+        "deny": []
+    } 

@@ -1,0 +1,25 @@
+# DEMO TESTFILE FOR PR-MOD
+
+# Port with which `docker:dind` interacts with app
+PORTS 8088/tcp
+
+# Volume mount path inside `docker:dind`
+VOL /<repo-name>
+
+# Working directory to ssh inside `docker:dind`
+CWD /<current working dir>
+
+# Clone abc code from github
+GIT git clone https://github.com/USER/abc.git .
+
+# Execute a shell cmd 
+SHELL cp -r ../<dir> .
+
+# Build apache image
+DOCKER docker build --file file_path --tag apache-abc .
+
+# Run docker-compose
+DOCKER docker-compose up -d
+
+# Build app abc
+DOCKER docker exec -it cid bash /scripts/build.sh
