@@ -67,6 +67,8 @@ Development and production also require a chrome extension using which user inte
 
 * Add your [Github Client Id and Client Secret key](https://auth0.com/docs/connections/social/github) in config file
 
+* Add allowed users(Github handles or owner handles) in the allowed user lists in `config.py`
+
 * Run flask server
 
     `python3 views.py`
