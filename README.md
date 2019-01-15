@@ -77,7 +77,7 @@ Development and production also require a chrome extension using which user inte
 
 Installation for PR-Mod Chrome extension
 
-* Clone the PR-Mod-Chrome-Extension github repository
+* Clone the [PR-Mod-Chrome-Extension](https://chrome.google.com/webstore/detail/pr-mod/dcfhokfmmkjboanaknnpphhgggnflmpe) github repository
 
     `git clone https://github.com/Dragneel7/pr-mod-chrome-extension.git`
 
