@@ -1,6 +1,6 @@
 # PR-Mod
 
-Reviewing PR's made easy.
+Reviewing pull-requests made much easier now .
 
 ## Description
 
@@ -16,11 +16,11 @@ Works with both private and public repositories.
 
 ## How PR-Mod works
 
-PR-Mod works with applications that support docker based deployment. It searches for a file named `Testfile` in the reposiotry.
+PR-Mod works with applications that support docker based deployment. It searches for a file named `Testfile` in the repository.
 
 [What is Testfile ?](https://github.com/Dragneel7/pr-mod/wiki/What-is-a-Testfile-%3F)
 
-[How to write a testfile ?](https://github.com/Dragneel7/pr-mod/wiki/How-to-write-a-Testfile)
+[How to write a Testfile ?](https://github.com/Dragneel7/pr-mod/wiki/How-to-write-a-Testfile)
 
 Based on the `Testfile` PR-Mod create an independent `docker:dind` image for each application where it is sandboxed from other applications running on the server.
 
@@ -98,7 +98,7 @@ Installation for PR-Mod Chrome extension
 
 ## Roadmap
 
-* Make PR-Mod available for non docker based reposiotries.
+* Make PR-Mod available for non docker based repositories.
 
 * Connect logout function with PR-Mod chrome extension.
 
