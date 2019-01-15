@@ -12,7 +12,8 @@ from helpers import (
     id_generator,
     find_free_port,
     get_pull_request_info,
-    execute_testfile)
+    execute_testfile
+)
 
 
 @app.route('/<owner>/<repo>/pull/<pr_no>')
@@ -31,7 +32,8 @@ def index(owner, repo, pr_no):
         Config.GITHUB_BASE_URL,
         owner,
         repo,
-        pr_no)
+        pr_no
+    )
     print("logging: Authorizing github user")
     return redirect('/authorize')
 
@@ -176,4 +178,4 @@ def logout():
 
 if __name__ == '__main__':
     app.secret_key = Config.SECRET_KEY
-    app.run()
+    app.run(ssl_context=('cert.pem', 'key.pem'))

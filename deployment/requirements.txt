@@ -5,3 +5,4 @@ GitPython==2.1.11
 requests==2.21.0
 requests-unixsocket==0.1.5
 docker==3.6.0
+pyOpenSSL==18.0.0

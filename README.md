@@ -53,9 +53,19 @@ Development and production also require a chrome extension using which user inte
 
     `git clone https://github.com/Dragneel7/pr-mod.git`
 
+* Go to development directory
+    
+    `cd pr-mod/development`
+
 * Install python dependencies
     
     `pip3 install -r requirements.txt`
+
+* Run openSSL command in terminal to create a self-signed certificate
+
+    `openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365`
+
+* Add your [Github Client Id and Client Secret key](https://auth0.com/docs/connections/social/github) in config file
 
 * Run flask server
 
@@ -86,7 +96,9 @@ Installation for PR-Mod Chrome extension
 
 ## Roadmap
 
-Make PR-Mod available for non docker based reposiotries.
+* Make PR-Mod available for non docker based reposiotries.
+
+* Add user authentication on server to provide only allowed users to utilize pr-mod server's resources.
 
 ## Authors and acknowledgment
 
