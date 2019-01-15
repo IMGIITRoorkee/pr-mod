@@ -98,7 +98,9 @@ Installation for PR-Mod Chrome extension
 
 * Make PR-Mod available for non docker based reposiotries.
 
-* Add user authentication on server to provide only allowed users to utilize pr-mod server's resources.
+* Connect logout function with PR-Mod chrome extension.
+
+* Add loading page to show the user when request is being processed at backend.
 
 ## Authors and acknowledgment
 
