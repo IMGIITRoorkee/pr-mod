@@ -102,6 +102,8 @@ Installation for PR-Mod Chrome extension
 
 * Add loading page to show the user when request is being processed at backend.
 
+* Add logging statements for DEBUG config.
+
 ## Authors and acknowledgment
 
 * [Surya Saini](https://github.com/Dragneel7/)
