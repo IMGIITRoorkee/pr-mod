@@ -3,7 +3,7 @@ import docker
 import constants
 
 
-from flask import redirect, url_for, session, request
+from flask import redirect, url_for, session, request, jsonify
 from git import Repo
 from app import app, github
 from config import Config
@@ -177,7 +177,7 @@ def deploy_dind(repo, branch):
         working_dir=cwd,
         privileged=True,
         detach=True)
-    session['container'] = dind_env
+    session['container_id'] = dind_env.id
     print("logging: prmod/base-image deployed")
     execute_testfile(dind_env, test_file_params)
     print("logging: application deployed on server")
@@ -188,12 +188,19 @@ def deploy_dind(repo, branch):
 
 @app.route('/logout')
 def logout():
-    container = session.get('container')
+    """ Clears the cloned repository, kills docker container and flushes
+    session variables.
+    """
+    client = docker.from_env()
+    container_id = session.get('container')
+    container = client.containers.get(container_id)
     repo = session.get('repo_name')
-    print("logging: closing pulled docker image")
-    container.close()
+    print("logging: kills pulled docker image")
+    container.kill()
     print("logging: removing cloned repository from server")
     os.system("rm -rf {}".format(repo))
+    print("logging: flushing session variables")
+    session.clear()
     return "Logout"
 
 
