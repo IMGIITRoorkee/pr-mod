@@ -29,11 +29,12 @@ def index(owner, repo, pr_no):
     """
 
     if Config.users["default"] == "deny" and owner not in Config.users["allow"]:
-        return "Permission denied"
+        return redirect('404/Permission_Denied')
     elif Config.users["default"] == "allow" and owner in Config.users["deny"]:
-        return "Permission denied"
+        return redirect('404/Permission_Denied')
     else:
         session['repo'] = repo
+        session['pr_no'] = pr_no
         session['repo_url'] = "{0}repos/{1}/{2}/pulls/{3}".format(
             Config.GITHUB_BASE_URL,
             owner,
@@ -61,6 +62,7 @@ def git_pull_repo(user, owner, repo, branch):
     print("logging: Pulling Repository from github")
     # name of the cloned repository on server
     repo_name = "{0}-{1}".format(repo, id_generator())
+    session['repo_name'] = repo_name
     try:
         # Clone the forked repository
         remote_url = constants.remote_url_string.format(user, repo)
@@ -112,7 +114,10 @@ def authorization_callback(oauth_token):
     user, owner, repo, branch = get_pull_request_info(oauth_token, repo)
     if (session.get('oauth_token') is True and
         session.get('{0}-{1}'.format(repo, branch)) is True):
-            return redirect(session.get('{0}-{1}'.format(repo, branch)))
+            return redirect(session.get('{0}-{1}'.format(
+                repo,
+                session.get('pr_no')))
+            )
     return redirect(
         url_for(
             'git_pull_repo',
@@ -136,13 +141,15 @@ def deploy_dind(repo, branch):
     :type branch: String
     """
     oauth_token = session.get('oauth_token')
-    # to ssh into container use `docker exec -ti exodus /bin/sh`
+    name = "exdous-{}".format(id_generator())
+    # to ssh into container use `docker exec -ti <name> /bin/sh`
     print("logging: Reading Testfile config")
     test_file_params = parse(repo, oauth_token)
     print("logging: Testfile config read")
     client = docker.from_env()
     try:
         volume = test_file_params['VOL']
+        vol_host = os.getcwd() + "/{}".format(repo)
     except KeyError:
         volume = '/{}'.format(repo)
     try:
@@ -150,15 +157,17 @@ def deploy_dind(repo, branch):
     except KeyError:
         cwd = '/'
     print("logging: find free port for the application")
-    port = find_free_port(1)[0]
-    print("logging: will accept tcp request on port: {}".format(port))
-    vol_host = os.getcwd() + "/{}".format(repo)
-    name = "exdous-{}".format(id_generator())
+    try:
+        port = test_file_params['PORTS']
+        free_port = find_free_port(1)[0]
+    except KeyError:
+        return redirect("404/Ports_Not_Mentioned")
+    print("logging: will accept tcp request on port: {}".format(free_port))
     print("logging: deploying prmod/base-image")
     dind_env = client.containers.run(
         'prmod/base-image',
         name=name,
-        ports={'8088/tcp': port},
+        ports={port: free_port},
         volumes={
             vol_host: {
                 'bind': volume,
@@ -168,18 +177,29 @@ def deploy_dind(repo, branch):
         working_dir=cwd,
         privileged=True,
         detach=True)
+    session['container'] = dind_env
     print("logging: prmod/base-image deployed")
     execute_testfile(dind_env, test_file_params)
     print("logging: application deployed on server")
-    url = "http://localhost:{}".format(port)
-    session['{0}-{1}'.format(repo, branch)] = url
+    url = "{}:{}".format(Config.SERVER_IP, port)
+    session['{0}-{1}'.format(repo, session.get('pr_no'))] = url
     return redirect(url)
 
 
-# Implement logout function
 @app.route('/logout')
 def logout():
+    container = session.get('container')
+    repo = session.get('repo_name')
+    print("logging: closing pulled docker image")
+    container.close()
+    print("logging: removing cloned repository from server")
+    os.system("rm -rf {}".format(repo))
     return "Logout"
+
+
+@app.route('/404/<error>')
+def not_found(error):
+    return error
 
 
 if __name__ == '__main__':

@@ -58,6 +58,9 @@ Development and production also require a chrome extension using which user inte
     
     `pip3 install -r requirements.txt`
 
+* Change directory to pr-mod/pr-mod
+    `cd pr-mod/pr-mod`
+
 * Run openSSL command in terminal to create a self-signed certificate
 
     `openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365`

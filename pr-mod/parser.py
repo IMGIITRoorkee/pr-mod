@@ -28,7 +28,7 @@ def parse(repo, oauth_token):
     path = find("Testfile", os.getcwd()+"/{}".format(repo))
     # ToDo: demo testfile for testing purpose, remove in production.
     if path is None:
-        test_file = open("Testfile", "r")
+        return redirect('404/Testfile_Not_Found')
     else:
         test_file = open(path, "r")
     content = test_file.read()
@@ -49,6 +49,4 @@ def parse(repo, oauth_token):
             CMD['CMD'].append(command)
         else:
             CMD[command_type] = command
-    if 'PORTS' in CMD:
-        CMD['PORTS'] = [x for x in CMD['PORTS'].split(" ")]
     return CMD
